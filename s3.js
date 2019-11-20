@@ -9,15 +9,15 @@ const s3Client = new s3({
 /**
  * Upload the file at the given path to S3.
  * Returns the result metadata object including file location and key.
- * @param    {String} filename
+ * @param    {String} id
  * @param    {ReadableStream} stream
  * @returns  {Promise<{Location: String, Key: String}>}
  */
-module.exports.upload = async function upload(filename, stream) {
+module.exports.uploadPhoto = async function uploadPhoto(id, stream) {
   try {
     return await s3Client.upload({
       Bucket: BUCKET,
-      Key: filename,
+      Key: `provider_photos/${id}`,
       Body: stream,
     }).promise();
   } catch (e) {

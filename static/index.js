@@ -1,3 +1,5 @@
+const S3_BASE_URL = 'https://c6collective.s3-us-west-2.amazonaws.com/provider_photos/';
+
 /**
  * Render an element into a container, removing any existing content
  */
@@ -18,7 +20,7 @@ const input = document.getElementById('npi-input');
 form.onsubmit = async function npiSearch(e) {
   e.preventDefault();
   render("Searching...", container);
-  const res = await fetch(`/provider?npiNumber=${input.value}`);
+  const res = await fetch(`/api/provider/${input.value}`);
   
   if (res.status > 200) {
     // 404 from the server or some other bad code
@@ -37,21 +39,38 @@ form.onsubmit = async function npiSearch(e) {
 function Provider(data) {
   const frag = document.createDocumentFragment();
   const name = document.createElement('h1');
-  const photoSelect = document.createElement('input');
-  photoSelect.type = 'file';
-  photoSelect.onchange = upload;
+  const photo = document.createElement('div');
   name.classList.add('capitalize');
   const gender = document.createElement('p');
   const etc = document.createElement('p');
   frag.append(
     name,
-    photoSelect,
+    photo,
     gender,
     etc,
     Address(data.addresses),
     Taxonomies(data.taxonomies),
     Networks(data.identifiers),
   );
+  
+  const photoUrl = S3_BASE_URL + data.number;
+  
+  async function upload(e) {
+    const body = new FormData();
+    const [ file ] = e.target.files;
+    body.append('photo', file);
+    await fetch(`/api/provider/${data.number}/photo`, {
+      method: 'PUT',
+      body,
+    });
+    render(Photo({ url: photoUrl }), photo);
+  }
+  
+  function onImageLoadError() {
+    render(PhotoUpload({ upload }), photo);
+  }
+  
+  render(Photo({ url: photoUrl, onError: onImageLoadError }), photo);
   
   name.innerText = `${data.basic.first_name} ${data.basic.last_name} ${data.basic.credential}`.toLowerCase();
   gender.innerText = `Gender: ${data.basic.gender}`;
@@ -60,14 +79,23 @@ function Provider(data) {
   return frag;
 }
 
-async function upload(e) {
-  const body = new FormData();
-  const [ file ] = e.target.files;
-  body.append(file.name, file);
-  return await fetch('/provider/photo', {
-    method: 'PUT',
-    body,
-  });
+/**
+ * Display the provider's photo if they've uploaded one
+ * If not, display a file upload input
+ */
+function Photo({ url, onError }) {
+  const img = document.createElement('img');
+  img.classList.add('provider-photo');
+  img.src = url;
+  img.onerror = onError;
+  return img;
+}
+
+function PhotoUpload({ upload }) {
+  const photoSelect = document.createElement('input');
+  photoSelect.type = 'file';
+  photoSelect.onchange = upload;
+  return photoSelect;
 }
 
 /**

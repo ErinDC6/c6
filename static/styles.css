@@ -1,3 +1,7 @@
 .capitalize {
     text-transform: capitalize;
 }
+
+.provider-photo {
+    max-width: 300px;
+}
