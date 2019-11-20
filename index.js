@@ -1,6 +1,10 @@
+require('dotenv').config();
+
 const express = require('express');
 const fetch = require('node-fetch');
 const open = require('open');
+const Busboy = require('busboy');
+const { upload } = require('./s3');
 
 const app = express();
 
@@ -16,6 +20,16 @@ app.get('/provider', async (req, res) => {
   }
   const [ provider ] = results;
   return res.json(provider);
+});
+
+app.put('/provider/photo', (req, res) => {
+  const busboy = new Busboy({ headers: req.headers });
+  busboy.on('file', async (filename, file) => {
+    const result = await upload(filename, file);
+    console.log(result);
+    return res.json(result);
+  });
+  req.pipe(busboy);
 });
 
 app.use(express.static('static'));

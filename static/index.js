@@ -37,12 +37,15 @@ form.onsubmit = async function npiSearch(e) {
 function Provider(data) {
   const frag = document.createDocumentFragment();
   const name = document.createElement('h1');
+  const photoSelect = document.createElement('input');
+  photoSelect.type = 'file';
+  photoSelect.onchange = upload;
   name.classList.add('capitalize');
   const gender = document.createElement('p');
   const etc = document.createElement('p');
   frag.append(
-    frag,
     name,
+    photoSelect,
     gender,
     etc,
     Address(data.addresses),
@@ -55,6 +58,16 @@ function Provider(data) {
   etc.innerText = `Entity Type Code: ${data.enumeration_type}`;
   
   return frag;
+}
+
+async function upload(e) {
+  const body = new FormData();
+  const [ file ] = e.target.files;
+  body.append(file.name, file);
+  return await fetch('/provider/photo', {
+    method: 'PUT',
+    body,
+  });
 }
 
 /**
