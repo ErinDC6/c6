@@ -36,7 +36,6 @@ app.put('/api/provider/:id/photo', (req, res) => {
 
 app.use(express.static('static'));
 
-app.listen(3000, () => {
-  console.log('Listening on port 3000');
-  open('http://localhost:3000/provider/');
+app.listen(process.env.PORT, () => {
+  console.log(`Listening on port ${process.env.PORT}`);
 });

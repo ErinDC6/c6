@@ -4,8 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node index.js"
+    "start": "knex migrate:latest && node index.js",
+    "develop": "npm start"
   },
   "author": "James Prow",
   "license": "ISC",
@@ -15,7 +15,8 @@
     "busboy": "^0.3.1",
     "dotenv": "^8.2.0",
     "express": "^4.17.1",
+    "knex": "^0.20.2",
     "node-fetch": "^2.6.0",
-    "open": "^7.0.0"
+    "pg": "^7.14.0"
   }
 }
