@@ -1,0 +1,37 @@
+version: '3'
+services:
+  postgres:
+    container_name: postgres
+    env_file: .env
+    image: postgres:12.0
+    volumes:
+      - dbdata:/var/lib/postgresql/data
+    networks:
+      - c6
+    ports:
+      - "${POSTGRES_PORT}:${POSTGRES_PORT}"
+    environment:
+      POSTGRES_DB: "${POSTGRES_DB}"
+      POSTGRES_USER: "${POSTGRES_USER}"
+      POSTGRES_PASSWORD: "${POSTGRES_PASSWORD}"
+  node:
+    container_name: node
+    build: ./
+    working_dir: /usr/src/app
+    env_file: .env
+    environment:
+      PORT: "${NODE_PORT}"
+      NODE_ENV: "${NODE_ENV}"
+      POSTGRES_HOST: "${POSTGRES_HOST}"
+    ports:
+      - "${NODE_PORT}:${NODE_PORT}"
+    volumes:
+      - ./:/usr/src/app
+    networks:
+      - c6
+    command: bash -c "npm install && ./wait-for.sh ${POSTGRES_HOST}:${POSTGRES_PORT} -- ./start.sh"
+volumes:
+  dbdata:
+networks:
+  c6:
+    driver: bridge
