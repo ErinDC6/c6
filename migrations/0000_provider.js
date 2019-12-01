@@ -1,24 +1,17 @@
 exports.up = function(knex) {
   return knex.schema
     .createTable('photos', t => {
-      t.increments('id');
+      t.uuid('id').primary();
       t.string('url');
     })
     .createTable('providers', t => {
-      t.integer('npi_number');
+      t.integer('npi_number').primary();
       t.string('bio');
-      t.integer('profile_photo_id')
-        .references('id')
-        .inTable('photos');
-      t.unique(['npi_number']);
+      t.uuid('profile_photo_id').references('id').inTable('photos');
     })
     .createTable('provider_photos', t => {
-      t.integer('provider_id')
-        .references('npi_number')
-        .inTable('providers');
-      t.integer('photo_id')
-        .references('id')
-        .inTable('photos');
+      t.integer('provider_npi_number').references('npi_number').inTable('providers');
+      t.uuid('photo_id').references('id').inTable('photos');
     })
 };
 

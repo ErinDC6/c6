@@ -11,7 +11,7 @@ const s3Client = new s3({
  * Upload the file at the given path to S3.
  * Returns the result metadata object including file location and key.
  * @param    {ReadableStream} stream
- * @returns  {Promise<{Location: String, Key: String}>}
+ * @returns  {Promise<{Location: String}>}
  */
 module.exports.upload = async function upload(stream) {
   try {
