@@ -22,7 +22,7 @@ async function getPhotosFromDB(npi_number) {
   return db
     .select()
     .from('providers')
-    .innerJoin('provider_photos', 'providers.npi_number', 'provider_photos.provider_id')
+    .innerJoin('provider_photos', 'providers.npi_number', 'provider_photos.provider_npi_number')
     .where({ npi_number });
 }
 

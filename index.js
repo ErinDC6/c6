@@ -3,11 +3,13 @@ const PORT = 80;
 require('dotenv').config();
 
 const express = require('express');
+const morgan = require('morgan');
 const Busboy = require('busboy');
 const photos = require('./photos');
 const providers = require('./providers');
 
 const app = express();
+app.use(morgan('dev'));
 
 /**
  * Get a Provider by NPI number
@@ -36,7 +38,7 @@ app.post('/api/photos', (req, res) => {
   const busboy = new Busboy({ headers: req.headers });
   req.pipe(busboy);
   busboy.on('file', async (filename, stream) => {
-    const p = photos.create(stream);
+    const p = await photos.create(stream);
     return res.json(p);
   });
 });
