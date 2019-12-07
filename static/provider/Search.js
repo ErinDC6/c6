@@ -1,7 +1,6 @@
-import { h, useState, useRef } from '../preact.js';
-import { get } from '../utils.js';
+import { h, useState } from '../preact.js';
 
-export default function Search({ next, updateProvider, updatePayload }) {
+export default function Search({ next, npiNumber, getProvider, updateNPINumber }) {
   return [
     h(Title),
     h(Description),
@@ -9,9 +8,10 @@ export default function Search({ next, updateProvider, updatePayload }) {
     h(
       Input,
       {
-        updateProvider,
-        updatePayload,
         next,
+        npiNumber,
+        getProvider,
+        updateNPINumber,
       },
     ),
   ]
@@ -43,9 +43,7 @@ function Description2() {
   )
 }
 
-function Input({ next, updateProvider, updatePayload }) {
-  const input = useRef(null);
-  const [ npiValue, updateNpiValue ] = useState('');
+function Input({ next, npiNumber, getProvider, updateNPINumber }) {
   const [ clean, updateClean ] = useState(true);
   return h(
     'form',
@@ -63,10 +61,12 @@ function Input({ next, updateProvider, updatePayload }) {
         h(
           'input',
           {
-            ref: input,
+            key: 'input2',
             type: 'number',
-            value: npiValue,
-            onChange: e => updateNpiValue(e.target.value),
+            value: npiNumber,
+            onInput: e => {
+              updateNPINumber(e.target.value)
+            },
           }
         ),
         h(
@@ -74,15 +74,11 @@ function Input({ next, updateProvider, updatePayload }) {
           {
             onClick: async () => {
               try {
-                updateProvider(
-                  await get(`/api/providers/${ npiValue }`),
-                );
+                await getProvider();
+                next();
               } catch {
                 updateClean(false);
-                return;
               }
-              updatePayload({ npi_number: npiValue });
-              next();
             }
           },
           '🔍',
@@ -91,9 +87,7 @@ function Input({ next, updateProvider, updatePayload }) {
     ),
     !clean && h(
       'p',
-      {
-        className: 'npi-search-error'
-      },
+      { className: 'npi-search-error' },
       "We couldn't find a provider with that NPI number.",
     )
   );

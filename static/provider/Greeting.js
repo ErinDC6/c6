@@ -1,11 +1,11 @@
 import { h } from '../preact.js';
 
-export default function Greeting({ provider, next }) {
+export default function Greeting({ name, next }) {
   return [
     h(
       'h1',
       null,
-      `Hi ${provider.basic.first_name.toLowerCase()}`
+      `Hi ${name}`
     ),
     h(
       'p',
@@ -14,7 +14,7 @@ export default function Greeting({ provider, next }) {
     ),
     h(
       'button',
-      { onClick: () => next({}) },
+      { onClick: next },
       'Okay',
     )
   ];

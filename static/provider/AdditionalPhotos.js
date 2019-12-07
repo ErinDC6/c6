@@ -1,15 +1,7 @@
-import { h, useEffect } from '../preact.js';
+import { h } from '../preact.js';
 import PhotoUpload from './PhotoUpload.js';
 
-export default function AdditionalPhotos({ payload, updatePayload }) {
-  useEffect(() => {
-    updatePayload({ photos: [] });
-  }, []);
-  
-  if (!payload.photos) {
-    return null;
-  }
-  
+export default function AdditionalPhotos({ next, photos, nextEnabled, addPhoto }) {
   return [
     h(
       'h2',
@@ -28,18 +20,21 @@ export default function AdditionalPhotos({ payload, updatePayload }) {
       [
         h(
           PhotoUpload,
-          {
-            onSuccess: ({ id }) => updatePayload({ photos: [ ...payload.photos, id ] }),
-          }
+          { onSuccess: ({ id }) => addPhoto(id) },
         ),
-        payload.photos.map(() => h(
+        photos.map(() => h(
           PhotoUpload,
-          {
-            onSuccess: ({ id }) => updatePayload({ photos: [ ...payload.photos, id ] }),
-          }
-          ),
-        )
+          { onSuccess: ({ id }) => addPhoto(id) },
+        )),
       ]
-    )
+    ),
+    h(
+      'button',
+      {
+        onClick: next,
+        disabled: !nextEnabled,
+      },
+      'Next',
+    ),
   ]
 }

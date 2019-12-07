@@ -16,3 +16,9 @@ export async function post(url, body) {
     body,
   });
 }
+
+export async function sleep(ms) {
+  return await new Promise(resolve => {
+    setTimeout(resolve, ms);
+  });
+}

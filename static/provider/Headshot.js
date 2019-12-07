@@ -1,7 +1,7 @@
 import { h } from '../preact.js';
 import PhotoUpload from './PhotoUpload.js';
 
-export default function Headshot({ next, payload, updatePayload }) {
+export default function Headshot({ next, nextEnabled, updateProfilePhoto }) {
   return [
     h(
       'h2',
@@ -15,17 +15,15 @@ export default function Headshot({ next, payload, updatePayload }) {
     ),
     h(
       PhotoUpload,
-      {
-        onSuccess: ({ id }) => updatePayload({ profile_photo: id }),
-      }
+      { onSuccess: ({ id }) => updateProfilePhoto(id) },
     ),
     h(
       'button',
       {
         onClick: next,
-        disabled: !payload.profile_photo,
+        disabled: !nextEnabled,
       },
       'Next',
-    )
+    ),
   ]
 }
