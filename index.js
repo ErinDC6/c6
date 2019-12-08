@@ -33,7 +33,6 @@ app.get('/api/providers/:npi_number', async (req, res) => {
  * Create a Provider
  */
 app.post('/api/providers', express.json(), async (req, res) => {
-  console.log(req.body);
   const { npi_number, profile_photo_id, photo_ids, bio } = req.body;
   const p = await providers.create({ npi_number, profile_photo_id, photo_ids, bio });
   return res.json(p);

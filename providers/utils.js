@@ -18,6 +18,15 @@ async function getFromDB(npi_number) {
     .first();
 }
 
+async function getProfilePhotoFromDB(npi_number) {
+  return db
+    .select('photos.*')
+    .from('photos')
+    .innerJoin('providers', 'providers.profile_photo_id', 'photos.id')
+    .where({ npi_number })
+    .first();
+}
+
 async function getPhotosFromDB(npi_number) {
   return db
     .select('photos.*')
@@ -27,10 +36,10 @@ async function getPhotosFromDB(npi_number) {
     .where({ npi_number });
 }
 
-
 async function getWithPhotosFromDB(npi_number) {
-  const [ provider, photos ] = await Promise.all([
+  const [ provider, profile_photo, photos ] = await Promise.all([
     getFromDB(npi_number),
+    getProfilePhotoFromDB(npi_number),
     getPhotosFromDB(npi_number),
   ]);
   if (!provider) {
@@ -38,6 +47,7 @@ async function getWithPhotosFromDB(npi_number) {
   }
   return {
     ...provider,
+    profile_photo,
     photos,
   }
 }

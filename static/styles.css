@@ -186,3 +186,41 @@ p {
 .onboarding-provider .additional-photos > * {
     margin-right: 10px;
 }
+
+/**
+ * Provider Profile
+ */
+
+.provider-profile .provider-profile-image {
+    width: 300px;
+    height: 300px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.provider-profile .provider-profile-image img {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+}
+
+.provider-profile h2 {
+    text-transform: capitalize;
+}
+
+.provider-profile .provider-profile-additional-images {
+    display: flex;
+}
+
+.provider-profile ul {
+    text-transform: capitalize;
+}
+
+.provider-profile ul p {
+    margin: 0;
+}
+
+.provider-profile ul li {
+    font-weight: 300;
+}
