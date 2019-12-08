@@ -7,7 +7,6 @@ const morgan = require('morgan');
 const Busboy = require('busboy');
 const photos = require('./photos');
 const providers = require('./providers');
-
 const app = express();
 app.use(morgan('dev'));
 
@@ -15,19 +14,28 @@ app.use(morgan('dev'));
  * Get a Provider by NPI number
  */
 app.get('/api/providers/:npi_number', async (req, res) => {
-  const p = await providers.get(req.params.npi_number);
-  if (!p) {
-    return res.status(404).send(new Error('Not found'));
+  // NPI number must be an integer
+  const npiNumberAsInt = parseInt(req.params.npi_number);
+  if (!npiNumberAsInt) {
+    return res.status(400).send(new Error('Bad Request'));
   }
+  
+  // Provider must exist
+  const p = await providers.get(npiNumberAsInt);
+  if (!p) {
+    return res.status(404).send(new Error('Not Found'));
+  }
+  
   return res.json(p);
 });
 
 /**
  * Create a Provider
  */
-app.post('/api/providers', async (req, res) => {
-  const { npi_number, photos, bio } = req.body;
-  const p = await providers.create({ npi_number, photos, bio });
+app.post('/api/providers', express.json(), async (req, res) => {
+  console.log(req.body);
+  const { npi_number, profile_photo_id, photo_ids, bio } = req.body;
+  const p = await providers.create({ npi_number, profile_photo_id, photo_ids, bio });
   return res.json(p);
 });
 

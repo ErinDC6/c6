@@ -1,20 +1,21 @@
 import { useState, h } from '../preact.js';
 
+import { getProvider, createProvider } from '../api.js';
+
 import Search from './Search.js';
 import Greeting from './Greeting.js';
 import Headshot from './Headshot.js';
 import AdditionalPhotos from './AdditionalPhotos.js';
 import Bio from './Bio.js';
 import Done from './Done.js';
-import { get, post } from '../utils.js';
 
-export default function Onboarding() {
+export default function Onboarding({ navigate }) {
   const [ step, updateStep ] = useState(0);
   const [ provider, updateProvider ] = useState({});
   const [ payload, updatePayload ] = useState({
     npi_number: '',
-    profile_photo: '',
-    photos: [],
+    profile_photo_id: '',
+    photo_ids: [],
     bio: '',
   });
   
@@ -26,17 +27,22 @@ export default function Onboarding() {
     updateStep(step + 1);
   }
   
+  function navigateToProvider(npi_number) {
+    return navigate(`/provider/${npi_number}`);
+  }
+  
   const STEPS = [
     
     // Search
     () => h(Search, {
-      next,
-      nextEnabled: true,
       npiNumber: payload.npi_number,
       getProvider: async () => {
-        updateProvider(
-          await get(`/api/providers/${payload.npi_number}`),
-        );
+        const provider = await getProvider(payload.npi_number);
+        if (provider.registered) {
+          navigateToProvider(payload.npi_number);
+        }
+        next();
+        updateProvider(provider);
       },
       updateNPINumber: npi_number => {
         mergeUpdatePayload({ npi_number });
@@ -53,19 +59,19 @@ export default function Onboarding() {
     // Headshot
     () => h(Headshot, {
       next,
-      nextEnabled: payload.profile_photo.length,
-      updateProfilePhoto: profile_photo => {
-        mergeUpdatePayload({ profile_photo });
+      nextEnabled: payload.profile_photo_id.length,
+      updateProfilePhoto: profile_photo_id => {
+        mergeUpdatePayload({ profile_photo_id });
       },
     }),
     
     // Additonal Photos
     () => h(AdditionalPhotos, {
       next,
-      nextEnabled: payload.photos.length,
-      photos: payload.photos,
+      nextEnabled: payload.photo_ids.length,
+      photo_ids: payload.photo_ids,
       addPhoto: id => {
-        mergeUpdatePayload({ photos: [ ...payload.photos, id ] });
+        mergeUpdatePayload({ photo_ids: [ ...payload.photo_ids, id ] });
       },
     }),
     
@@ -81,8 +87,9 @@ export default function Onboarding() {
     // Done
     () => h(Done, {
       createProvider: async () => {
-        await post('/api/providers', payload);
-      }
+        return await createProvider(payload);
+      },
+      navigateToProvider
     })
   ];
   

@@ -1,7 +1,7 @@
 import { h } from '../preact.js';
-import PhotoUpload from './PhotoUpload.js';
+import PhotoUpload from '../PhotoUpload.js';
 
-export default function AdditionalPhotos({ next, photos, nextEnabled, addPhoto }) {
+export default function AdditionalPhotos({ next, photo_ids, nextEnabled, addPhoto }) {
   return [
     h(
       'h2',
@@ -22,7 +22,7 @@ export default function AdditionalPhotos({ next, photos, nextEnabled, addPhoto }
           PhotoUpload,
           { onSuccess: ({ id }) => addPhoto(id) },
         ),
-        photos.map(() => h(
+        photo_ids.map(() => h(
           PhotoUpload,
           { onSuccess: ({ id }) => addPhoto(id) },
         )),

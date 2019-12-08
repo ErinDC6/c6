@@ -13,6 +13,16 @@ export async function get(url) {
 export async function post(url, body) {
   return await wrappedFetch(url, {
     method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(body),
+  });
+}
+
+export async function upload(url, file) {
+  const body = new FormData();
+  body.append('photo', file);
+  return await wrappedFetch(url, {
+    method: 'POST',
     body,
   });
 }

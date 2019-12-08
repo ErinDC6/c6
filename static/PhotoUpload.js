@@ -1,5 +1,5 @@
-import { h, useRef, useState } from '../preact.js';
-import { post } from '../utils.js';
+import { h, useRef, useState } from './preact.js';
+import { createPhoto } from './api.js';
 
 export default function PhotoUpload({ onSuccess }) {
   const [ url, updateUrl ] = useState(null);
@@ -26,9 +26,7 @@ export default function PhotoUpload({ onSuccess }) {
         accept: 'image/*',
         onInput: async e => {
           const [ file ] = e.target.files;
-          const body = new FormData();
-          body.append('photo', file);
-          const photo = await post('/api/photos', body);
+          const photo = await createPhoto(file);
           updateUrl(photo.url);
           onSuccess(photo);
         }

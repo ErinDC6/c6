@@ -1,8 +1,8 @@
-import { h } from '../preact.js';
+import { h } from './preact.js';
 
-import Onboarding from './Onboarding.js';
+import Router from './Router.js';
 
-export default function Provider(props) {
+export default function Layout() {
   return [
     Header(),
     h(
@@ -11,7 +11,7 @@ export default function Provider(props) {
       h(
         'div',
         { className: 'content' },
-        h(Onboarding),
+        h(Router),
       )
     ),
     Footer(),

@@ -1,5 +1,5 @@
 import { h } from '../preact.js';
-import PhotoUpload from './PhotoUpload.js';
+import PhotoUpload from '../PhotoUpload.js';
 
 export default function Headshot({ next, nextEnabled, updateProfilePhoto }) {
   return [

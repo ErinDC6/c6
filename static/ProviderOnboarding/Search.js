@@ -75,7 +75,6 @@ function Input({ next, npiNumber, getProvider, updateNPINumber }) {
             onClick: async () => {
               try {
                 await getProvider();
-                next();
               } catch {
                 updateClean(false);
               }

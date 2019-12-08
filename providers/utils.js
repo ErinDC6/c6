@@ -20,9 +20,10 @@ async function getFromDB(npi_number) {
 
 async function getPhotosFromDB(npi_number) {
   return db
-    .select()
-    .from('providers')
-    .innerJoin('provider_photos', 'providers.npi_number', 'provider_photos.provider_npi_number')
+    .select('photos.*')
+    .from('photos')
+    .innerJoin('provider_photos', 'photos.id', 'provider_photos.photo_id')
+    .innerJoin('providers', 'providers.npi_number', 'provider_photos.provider_npi_number')
     .where({ npi_number });
 }
 
@@ -43,7 +44,7 @@ async function getWithPhotosFromDB(npi_number) {
 
 async function create(data) {
   try {
-    db('providers').insert(data);
+    await db('providers').insert(data);
   } catch {
     throw new Error('409');
   }
@@ -51,11 +52,13 @@ async function create(data) {
 
 
 async function createWithPhotos(data) {
-  const { photos: photoData, ...providerData } = data;
-  return Promise.all([
-    create(providerData),
-    db('provider_photos').insert(photoData),
-  ])
+  const { photo_ids, ...providerData } = data;
+  const providerPhotos = photo_ids.map(id => ({
+    provider_npi_number: providerData.npi_number,
+    photo_id: id,
+  }));
+  await create(providerData);
+  await db('provider_photos').insert(providerPhotos);
 }
 
 module.exports = {
