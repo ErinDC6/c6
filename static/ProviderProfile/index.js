@@ -23,7 +23,7 @@ export default function ProviderProfile({ npiNumber }) {
   }
   
   const basic = provider.basic;
-  const name = `${basic.first_name.toLowerCase()} ${basic.first_name.toLowerCase()} ${basic.credential}`;
+  const name = `${basic.first_name.toLowerCase()} ${basic.last_name.toLowerCase()} ${basic.credential}`;
   return h(
     'div',
     { className: 'provider-profile' },
