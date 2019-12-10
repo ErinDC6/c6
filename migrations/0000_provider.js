@@ -11,7 +11,7 @@ exports.up = async function(knex) {
   // Create Providers table
   await knex.schema.createTable('providers', t => {
     t.integer('npi_number').primary();
-    t.string('bio');
+    t.text('bio');
     t.uuid('profile_photo_id').references('id').inTable('photos');
   });
   
