@@ -103,6 +103,12 @@ p {
     text-transform: capitalize;
 }
 
+img.contained {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+}
+
 /**
  * Photo Upload
  */
@@ -126,6 +132,82 @@ p {
     object-fit: contain;
     max-width: 100%;
     max-height: 100%;
+}
+
+/**
+ * Carousel
+ */
+
+.carousel {
+    max-width: 600px;
+    position: relative;
+    font-size: 5em;
+    color: white;
+    cursor: pointer;
+    overflow: hidden;
+}
+
+.carousel .carousel-prev,
+.carousel .carousel-next {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    display: flex;
+    align-items: center;
+}
+
+.carousel .carousel-prev div,
+.carousel .carousel-next div {
+    --size: 1em;
+
+    position: relative;
+    width: var(--size);
+    height: var(--size);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: 50%;
+    background: rgb(var(--primary));
+    opacity: 0.5;
+}
+
+.carousel .carousel-prev div {
+    left: calc(var(--size) / 2 * -1);
+}
+
+.carousel .carousel-next div {
+    right: calc(var(--size) / 2 * -1);
+}
+
+
+.carousel .carousel-prev:hover div,
+.carousel .carousel-next:hover div {
+    opacity: 1;
+}
+
+.carousel .carousel-prev div span,
+.carousel .carousel-next div span {
+    position: absolute;
+    top: -13px;
+}
+
+.carousel .carousel-prev {
+    left: 0;
+    right: 50%;
+}
+
+.carousel .carousel-prev div span {
+    left: calc(var(--size) / 2);
+}
+
+.carousel .carousel-next div span {
+    right: calc(var(--size) / 2);
+}
+
+.carousel .carousel-next {
+    left: 50%;
+    right: 0;
+    justify-content: flex-end;
 }
 
 /**
@@ -190,6 +272,16 @@ p {
 /**
  * Provider Profile
  */
+
+.provider-profile-top {
+    display: flex;
+}
+
+.provider-profile-top iframe {
+    flex: 1;
+    max-width: 600px;
+    margin-left: 10px;
+}
 
 .provider-profile .provider-profile-image {
     width: 300px;
