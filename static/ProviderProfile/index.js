@@ -3,6 +3,20 @@ import { getProvider } from '../api.js';
 
 import NotFound from '../NotFound.js';
 import Carousel from '../Carousel.js';
+import Map from '../Map.js';
+
+function getPrimaryAddress(addresses) {
+  const [ locationAddress ] = addresses.filter(a => a.address_purpose === 'LOCATION');
+  if (locationAddress) {
+    return locationAddress;
+  }
+  const [ firstAddress ] = addresses;
+  return firstAddress;
+}
+
+function getFullAddressString({ address_1, address_2, city, state }) {
+  return `${address_1} ${address_2} ${city} ${state}`;
+}
 
 export default function ProviderProfile({ npiNumber }) {
   const [ provider, updateProvider ] = useState({});
@@ -25,6 +39,7 @@ export default function ProviderProfile({ npiNumber }) {
   
   const basic = provider.basic;
   const name = `${basic.first_name.toLowerCase()} ${basic.last_name.toLowerCase()} ${basic.credential}`;
+  const primaryAddress = getPrimaryAddress(provider.addresses);
   return h(
     'div',
     { className: 'provider-profile' },
@@ -35,13 +50,26 @@ export default function ProviderProfile({ npiNumber }) {
         name,
       ),
       h(
-        Image,
-        { src: provider.profile_photo.url },
+        'div',
+        { className: 'provider-profile-top' },
+        h(
+          Image,
+          { src: provider.profile_photo.url },
+        ),
+        h(
+          Map,
+          { address: getFullAddressString(primaryAddress) }
+        ),
       ),
       h(
         'h2',
         null,
         `About ${provider.basic.first_name.toLowerCase()}`
+      ),
+      h(
+        'p',
+        null,
+        provider.bio,
       ),
       h(
         'ul',
@@ -65,23 +93,9 @@ export default function ProviderProfile({ npiNumber }) {
             'Address: '
           ),
           h(
-            PrimaryAddress,
-            { addresses: provider.addresses }
+            Address,
+            { address: primaryAddress }
           )
-        ),
-        h(
-          'li',
-          null,
-          h(
-            'strong',
-            null,
-            'Bio: ',
-          ),
-          h(
-            'p',
-            null,
-            provider.bio,
-          ),
         ),
         h(
           'li',
@@ -118,21 +132,6 @@ function Image({ src }) {
       'img',
       { src },
     )
-  )
-}
-
-function PrimaryAddress({ addresses }) {
-  const [ locationAddress ] = addresses.filter(a => a.address_purpose === 'LOCATION');
-  if (locationAddress) {
-    return h(
-      Address,
-      { address: locationAddress },
-    )
-  }
-  const [ firstAddress ] = addresses;
-  return h(
-    Address,
-    { addresses: firstAddress }
   )
 }
 

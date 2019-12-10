@@ -139,7 +139,7 @@ img.contained {
  */
 
 .carousel {
-    max-width: 100%;
+    max-width: 600px;
     position: relative;
     font-size: 5em;
     color: white;
@@ -272,6 +272,16 @@ img.contained {
 /**
  * Provider Profile
  */
+
+.provider-profile-top {
+    display: flex;
+}
+
+.provider-profile-top iframe {
+    flex: 1;
+    max-width: 600px;
+    margin-left: 10px;
+}
 
 .provider-profile .provider-profile-image {
     width: 300px;
