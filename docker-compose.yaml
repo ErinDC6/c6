@@ -20,18 +20,19 @@ services:
     working_dir: /usr/src/app
     env_file: .env
     environment:
-      PORT: "${NODE_PORT}"
       NODE_ENV: "${NODE_ENV}"
       POSTGRES_HOST: "${POSTGRES_HOST}"
     ports:
-      - "${NODE_PORT}:${NODE_PORT}"
+      - "${NODE_PORT}:80"
     volumes:
       - ./:/usr/src/app
+      - node_modules:/usr/src/app/node_modules
     networks:
       - c6
     command: bash -c "npm install && ./wait-for.sh ${POSTGRES_HOST}:${POSTGRES_PORT} -- ./start.sh"
 volumes:
   dbdata:
+  node_modules:
 networks:
   c6:
     driver: bridge

@@ -1,41 +1,60 @@
+const PORT = 80;
+
 require('dotenv').config();
 
 const express = require('express');
-const fetch = require('node-fetch');
-const open = require('open');
+const morgan = require('morgan');
 const Busboy = require('busboy');
-const { uploadPhoto } = require('./s3');
-
+const photos = require('./photos');
+const providers = require('./providers');
 const app = express();
+app.use(morgan('dev'));
 
 /**
- * Proxy a request to the NPI Registry API for a provider with the given NPI number
+ * Get a Provider by NPI number
  */
-app.get('/api/provider/:id', async (req, res) => {
-  const response = await fetch(`https://npiregistry.cms.hhs.gov/api?version=2.1&number=${req.params.id}`);
-  const { results } = await response.json();
-  if (!results || !results.length) {
-    return res.status(404).send(new Error('Not found'));
+app.get('/api/providers/:npi_number', async (req, res) => {
+  // NPI number must be an integer
+  const npiNumberAsInt = parseInt(req.params.npi_number);
+  if (!npiNumberAsInt) {
+    return res.status(400).send(new Error('Bad Request'));
   }
-  const [ provider ] = results;
-  return res.json(provider);
+  
+  // Provider must exist
+  const p = await providers.get(npiNumberAsInt);
+  if (!p) {
+    return res.status(404).send(new Error('Not Found'));
+  }
+  
+  return res.json(p);
 });
 
 /**
- * Upload a profile photo for the provider with the given ID
- * This is streamed straight to S3
+ * Create a Provider
  */
-app.put('/api/provider/:id/photo', (req, res) => {
-  const busboy = new Busboy({ headers: req.headers });
-  busboy.on('file', async (filename, file) => {
-    const result = await uploadPhoto(req.params.id, file);
-    return res.json(result);
-  });
-  req.pipe(busboy);
+app.post('/api/providers', express.json(), async (req, res) => {
+  const { npi_number, profile_photo_id, photo_ids, bio } = req.body;
+  const p = await providers.create({ npi_number, profile_photo_id, photo_ids, bio });
+  return res.json(p);
 });
 
+/**
+ * Create a Photo
+ */
+app.post('/api/photos', (req, res) => {
+  const busboy = new Busboy({ headers: req.headers });
+  req.pipe(busboy);
+  busboy.on('file', async (filename, stream) => {
+    const p = await photos.create(stream);
+    return res.json(p);
+  });
+});
+
+/**
+ * Everything in /static is public
+ */
 app.use(express.static('static'));
 
-app.listen(process.env.PORT, () => {
-  console.log(`Listening on port ${process.env.PORT}`);
+app.listen(PORT, () => {
+  console.log(`Listening on port ${PORT}`);
 });
