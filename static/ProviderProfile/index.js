@@ -2,6 +2,7 @@ import { h, useEffect, useState } from '../preact.js';
 import { getProvider } from '../api.js';
 
 import NotFound from '../NotFound.js';
+import Carousel from '../Carousel.js';
 
 export default function ProviderProfile({ npiNumber }) {
   const [ provider, updateProvider ] = useState({});
@@ -102,12 +103,8 @@ export default function ProviderProfile({ npiNumber }) {
         `${provider.basic.first_name.toLowerCase()}'s Photos`
       ),
       h(
-        'div',
-        { className: 'provider-profile-additional-images' },
-        provider.photos.map(p => h(
-          Image,
-          { src: p.url, },
-        )),
+        Carousel,
+        { photos: provider.photos.map(({ url }) => url) },
       ),
     ],
   );
