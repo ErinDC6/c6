@@ -316,3 +316,7 @@ img.contained {
 .provider-profile ul li {
     font-weight: 300;
 }
+
+.provider-profile p.provider-bio {
+    white-space: pre-line;
+}

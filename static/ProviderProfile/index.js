@@ -68,7 +68,7 @@ export default function ProviderProfile({ npiNumber }) {
       ),
       h(
         'p',
-        null,
+        { className: 'provider-bio' },
         provider.bio,
       ),
       h(
