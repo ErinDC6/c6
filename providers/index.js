@@ -6,46 +6,51 @@
  */
 
 const {
+  merge,
   getFromNPIRegistry,
-  getWithPhotosFromDB,
-  createWithPhotos,
+  getFromDB,
+  createInDB,
 } = require('./utils');
 
 /**
- * Get a Provider
- * If no provider with the given NPI number in the NPI registry, returns null
- * If found in the NPI registry but not our DB, return object has property "registered" set to false
- * If found in both, return object has property "registered" set to true
+ * Get the Provider with the given npi_number
+ * In this context, the provider could be in our system or not
+ * Query both the DB and the NPI API and merge the results
  *
  * @param   {Number} npi_number
  * @param   {Object} [caches]
- * @param   {Object} [caches.npiData]
- * @param   {Object} [caches.dbData]
+ * @param   {Object} [caches.npiCached]
+ * @param   {Object} [caches.dbCached]
  * @returns {Promise<Object>}
  */
-async function get(npi_number, { npiData, dbData } = {}) {
-  const [ npiResponse, dbResponse ] = await Promise.all([
-    npiData || getFromNPIRegistry(npi_number),
-    dbData || getWithPhotosFromDB(npi_number),
+async function getOne(npi_number, { npiCached, dbCached } = {}) {
+  console.log(npi_number);
+  const [ fromNpi, fromDb ] = await Promise.all([
+    npiCached || getFromNPIRegistry(npi_number),
+    dbCached || getFromDB({ npi_number }).first(),
   ]);
   
-  // Source of truth
-  if (!npiResponse) {
-    return null;
-  }
+  console.log('npi', fromNpi);
+  console.log('db', fromDb)
   
-  if (!dbResponse) {
-    return {
-      ...npiResponse,
-      registered: false,
-    };
-  }
-  
-  return {
-    ...npiResponse,
-    registered: true,
-    ...dbResponse,
-  }
+  return merge(fromDb, fromNpi);
+}
+
+/**
+ * Get all Providers
+ * In this context, the set of all providers is defined as each provider registered in our system
+ * Query the DB, map the providers we have onto NPI API calls, and merge the result.
+ *
+ * @returns {Promise<Object[]>}
+ */
+async function getAll() {
+  const fromDb = await getFromDB();
+  return await Promise.all(
+    fromDb.map(async p => {
+      const fromNpi = await getFromNPIRegistry(p.npi_number);
+      return merge(p, fromNpi);
+    }),
+  );
 }
 
 /**
@@ -56,15 +61,16 @@ async function get(npi_number, { npiData, dbData } = {}) {
  * @returns {Promise<Object>}
  */
 async function create(data) {
-  const npiData = await getFromNPIRegistry(data.npi_number);
-  if (!npiData) {
+  const npiCached = await getFromNPIRegistry(data.npi_number);
+  if (!npiCached) {
     throw new Error('400');
   }
-  const dbData = await createWithPhotos(data);
-  return get(data.npi_number, { npiData, dbData });
+  const dbCached = await createInDB(data);
+  return getOne(data.npi_number, { npiCached, dbCached });
 }
 
 module.exports = {
-  get,
+  getOne,
+  getAll,
   create,
 };

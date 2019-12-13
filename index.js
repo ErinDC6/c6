@@ -11,23 +11,35 @@ const app = express();
 app.use(morgan('dev'));
 
 /**
- * Get a Provider by NPI number
+ * Query providers
  */
-app.get('/api/providers/:npi_number', async (req, res) => {
-  // NPI number must be an integer
-  const npiNumberAsInt = parseInt(req.params.npi_number);
-  if (!npiNumberAsInt) {
-    return res.status(400).send(new Error('Bad Request'));
+app.get('/api/providers', async (req, res) => {
+  const { npi_number, ...queryWithoutNPI } = req.query;
+  
+  // Request filtered on npi_number is a get operation
+  if (npi_number) {
+    if (!parseInt(npi_number)) {
+      return res.status(400).send(new Error('Bad Request: NPI number is not numeric.'));
+    }
+    const provider = await providers.getOne(npi_number);
+    console.log('prov', provider);
+    if (!provider) {
+      return res.status(404).send(new Error('Not Found'));
+    }
+    return res.json(provider);
   }
   
-  // Provider must exist
-  const p = await providers.get(npiNumberAsInt);
-  if (!p) {
-    return res.status(404).send(new Error('Not Found'));
+  // No other queries allowed besides NPI number
+  if (Object.keys(queryWithoutNPI).length) {
+    return res.status(400).send(new Error('Bad Request: Unsupported query parameter(s).'));
   }
   
-  return res.json(p);
+  // Request without query parameters is a list operation
+  const allProviders = await providers.getAll();
+  
+  return res.json(allProviders);
 });
+
 
 /**
  * Create a Provider

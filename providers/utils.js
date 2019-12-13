@@ -1,5 +1,26 @@
 const { fetchJSON } = require('../utils');
 const db = require('../db');
+const { JSONSubquery } = require('../db/utils');
+
+async function merge(fromDb, fromNpi) {
+  // Source of truth
+  if (!fromNpi) {
+    return null;
+  }
+  
+  if (!fromDb) {
+    return {
+      ...fromNpi,
+      registered: false,
+    };
+  }
+  
+  return {
+    ...fromNpi,
+    ...fromDb,
+    registered: true,
+  }
+}
 
 async function getFromNPIRegistry(npi_number) {
   const { results } = await fetchJSON(`https://npiregistry.cms.hhs.gov/api?version=2.1&number=${npi_number}`);
@@ -10,69 +31,47 @@ async function getFromNPIRegistry(npi_number) {
   return provider;
 }
 
-async function getFromDB(npi_number) {
-  return db
-    .select()
-    .from('providers')
-    .where({ npi_number })
-    .first();
-}
-
-async function getProfilePhotoFromDB(npi_number) {
-  return db
-    .select('photos.*')
-    .from('photos')
-    .innerJoin('providers', 'providers.profile_photo_id', 'photos.id')
-    .where({ npi_number })
-    .first();
-}
-
-async function getPhotosFromDB(npi_number) {
-  return db
-    .select('photos.*')
+function getFromDB(query) {
+  const photosSubquery = db
+    .select('photos.id', 'photos.url')
     .from('photos')
     .innerJoin('provider_photos', 'photos.id', 'provider_photos.photo_id')
-    .innerJoin('providers', 'providers.npi_number', 'provider_photos.provider_npi_number')
-    .where({ npi_number });
+    .whereRaw('provider_photos.provider_npi_number = npi_number');
+  
+  return db
+    .select(
+      'npi_number',
+      'bio',
+      'profile_photo.url as profile_photo',
+      JSONSubquery('photos', photosSubquery),
+    )
+    .from('providers')
+    .innerJoin('photos as profile_photo', 'profile_photo_id', 'profile_photo.id')
+    .modify(qb => {
+      if (!query) {
+        return;
+      }
+      qb.where(query);
+    });
 }
 
-async function getWithPhotosFromDB(npi_number) {
-  const [ provider, profile_photo, photos ] = await Promise.all([
-    getFromDB(npi_number),
-    getProfilePhotoFromDB(npi_number),
-    getPhotosFromDB(npi_number),
-  ]);
-  if (!provider) {
-    return null;
-  }
-  return {
-    ...provider,
-    profile_photo,
-    photos,
-  }
-}
-
-async function create(data) {
-  try {
-    await db('providers').insert(data);
-  } catch {
-    throw new Error('409');
-  }
-}
-
-
-async function createWithPhotos(data) {
+async function createInDB(data) {
   const { photo_ids, ...providerData } = data;
   const providerPhotos = photo_ids.map(id => ({
     provider_npi_number: providerData.npi_number,
     photo_id: id,
   }));
-  await create(providerData);
+  try {
+    await db('providers').insert(providerData);
+  } catch {
+    throw new Error('409');
+  }
   await db('provider_photos').insert(providerPhotos);
 }
 
 module.exports = {
+  merge,
   getFromNPIRegistry,
-  getWithPhotosFromDB,
-  createWithPhotos,
+  getFromDB,
+  createInDB,
 };
