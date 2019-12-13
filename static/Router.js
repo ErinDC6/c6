@@ -11,6 +11,14 @@ async function matchHash() {
     };
   }
   
+  if (location.match('providers')) {
+    const Component = await import('./ProviderList/index.js');
+    return {
+      component: Component.default,
+      props: {},
+    }
+  }
+  
   let match = location.match('provider/(?<npiNumber>.*)');
   if (match) {
     const Component = await import('./ProviderProfile/index.js');

@@ -1,6 +1,7 @@
 import { h } from './preact.js';
 
 import Router from './Router.js';
+import NavBar from './NavBar.js';
 
 export default function Layout() {
   return [
@@ -23,6 +24,7 @@ function Header() {
     'header',
     null,
     h(Logo),
+    h(NavBar),
   )
 }
 
