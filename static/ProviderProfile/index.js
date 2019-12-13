@@ -2,8 +2,10 @@ import { h, useEffect, useState } from '../preact.js';
 import { getProvider } from '../api.js';
 
 import NotFound from '../NotFound.js';
+import ProfilePhoto from '../ProfilePhoto.js';
 import Carousel from '../Carousel.js';
 import Map from '../Map.js';
+import { getProviderDisplayName } from '../utils.js';
 
 function getPrimaryAddress(addresses) {
   const [ locationAddress ] = addresses.filter(a => a.address_purpose === 'LOCATION');
@@ -37,8 +39,7 @@ export default function ProviderProfile({ npiNumber }) {
     return h(NotFound);
   }
   
-  const basic = provider.basic;
-  const name = `${basic.first_name.toLowerCase()} ${basic.last_name.toLowerCase()} ${basic.credential}`;
+  const name = getProviderDisplayName(provider);
   const primaryAddress = getPrimaryAddress(provider.addresses);
   return h(
     'div',
@@ -53,8 +54,8 @@ export default function ProviderProfile({ npiNumber }) {
         'div',
         { className: 'provider-profile-top' },
         h(
-          Image,
-          { src: provider.profile_photo.url },
+          ProfilePhoto,
+          { src: provider.profile_photo },
         ),
         h(
           Map,
@@ -68,7 +69,7 @@ export default function ProviderProfile({ npiNumber }) {
       ),
       h(
         'p',
-        null,
+        { className: 'provider-bio' },
         provider.bio,
       ),
       h(
@@ -122,17 +123,6 @@ export default function ProviderProfile({ npiNumber }) {
       ),
     ],
   );
-}
-
-function Image({ src }) {
-  return h(
-    'div',
-    { className: 'provider-profile-image' },
-    h(
-      'img',
-      { src },
-    )
-  )
 }
 
 function Address({ address }) {

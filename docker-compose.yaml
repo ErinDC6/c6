@@ -18,6 +18,8 @@ services:
       - dbdata:/var/lib/postgresql/data
     networks:
       - c6
+    ports:
+      - 5432:5432
     environment:
       POSTGRES_DB: "${POSTGRES_DB}"
       POSTGRES_USER: "${POSTGRES_USER}"
@@ -30,6 +32,7 @@ services:
     environment:
       NODE_ENV: "${NODE_ENV}"
       POSTGRES_HOST: "${POSTGRES_HOST}"
+      DEBUG: "knex:query"
     expose:
       - 80
     volumes:
@@ -37,7 +40,7 @@ services:
       - node_modules:/usr/src/app/node_modules
     networks:
       - c6
-    command: bash -c "npm install && ./wait-for.sh ${POSTGRES_HOST}:${POSTGRES_PORT} -- ./start.sh"
+    command: bash -c "env && npm install && ./wait-for.sh ${POSTGRES_HOST}:${POSTGRES_PORT} -- ./start.sh"
 volumes:
   dbdata:
   node_modules:

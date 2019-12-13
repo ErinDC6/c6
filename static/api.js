@@ -1,7 +1,11 @@
 import { get, post, upload } from './utils.js';
 
+export async function getProviders() {
+  return await get('/api/providers');
+}
+
 export async function getProvider(npi_number) {
-  return await get(`/api/providers/${npi_number}`);
+  return await get(`/api/providers?npi_number=${npi_number}`);
 }
 
 export async function createProvider(payload) {

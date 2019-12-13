@@ -32,3 +32,7 @@ export async function sleep(ms) {
     setTimeout(resolve, ms);
   });
 }
+
+export function getProviderDisplayName(provider) {
+  return `${provider.basic.first_name.toLowerCase()} ${provider.basic.last_name.toLowerCase()} ${provider.basic.credential? provider.basic.credential : ''}`;
+}
