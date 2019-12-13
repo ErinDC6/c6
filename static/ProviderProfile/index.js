@@ -54,7 +54,7 @@ export default function ProviderProfile({ npiNumber }) {
         { className: 'provider-profile-top' },
         h(
           Image,
-          { src: provider.profile_photo.url },
+          { src: provider.profile_photo },
         ),
         h(
           Map,
