@@ -1,4 +1,3 @@
-const BUCKET = 'c6collective';
 const s3 = require('aws-sdk/clients/s3');
 const uuid = require('uuid');
 
@@ -16,7 +15,7 @@ const s3Client = new s3({
 module.exports.upload = async function upload(stream) {
   try {
     return await s3Client.upload({
-      Bucket: BUCKET,
+      Bucket: process.env.S3_BUCKET,
       Key: `provider_photos/${uuid()}`,
       Body: stream,
     }).promise();
