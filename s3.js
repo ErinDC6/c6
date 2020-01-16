@@ -16,7 +16,7 @@ module.exports.upload = async function upload(stream) {
   try {
     return await s3Client.upload({
       Bucket: process.env.S3_BUCKET,
-      Key: `provider_photos/${uuid()}`,
+      Key: `${process.env.S3_FOLDER}/${uuid()}`,
       Body: stream,
     }).promise();
   } catch (e) {
