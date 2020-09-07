@@ -20,5 +20,9 @@
     "node-fetch": "^2.6.0",
     "pg": "^7.14.0",
     "uuid": "^3.3.3"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ErinDC6/c6.git"
   }
 }
